@@ -32,7 +32,7 @@ RULES:
 - Do not use the phrase "Northumbrian Water Innovation Festival" more than once
 - MOST IMPORTANT: Use the context field below to personalise the message. Reference specific details from it. A generic message that ignores context is a failure.
 - The warmth level must change both the opening line and overall tone significantly. Hot = direct and assumptive. Warm = friendly, references prior contact. Cold = careful, acknowledges gap.
-- Registration status must change the structure: if registered skip festival invite, if unsure include it.
+- Registration status must change the structure:  registered skip festival invite,  unsure include it.
 
 Contact:
 - Name: ${name}
@@ -67,7 +67,7 @@ TIP: [one sentence of practical advice for sending this specific message]`
 
     const data = await res.json()
 
-    if (!res.ok) {
+     (!res.ok) {
       const errMsg = data?.error?.message || `HTTP ${res.status}`
       return NextResponse.json({ error: `AI error: ${errMsg}` }, { status: 500 })
     }
@@ -81,10 +81,21 @@ TIP: [one sentence of practical advice for sending this specific message]`
     const tipMatch = text.match(/TIP:\s*([\s\S]*?)$/)
     const tip = tipMatch ? tipMatch[1].trim() : ''
     const mainContent = text.replace(/TIP:[\s\S]*$/, '').trim()
-
+const tipMatch = text.match(/TIP:\s*([\s\S]*?)$/)
+    const tip = tipMatch ? tipMatch[1].trim() : ''
+    const mainContent = text.replace(/TIP:[\s\S]*$/, '').trim()
     if (channel === 'linkedin') {
       const liMatch = mainContent.match(/LINKEDIN:\s*([\s\S]*?)$/)
-      if (!liMatch) return NextResponse.json({ error: 'Failed to parse response. Please try again.' }, { status: 500 })
+      const message = liMatch ? liMatch[1].trim() : mainContent.trim()
+      return NextResponse.json({ channel: 'linkedin', message, tip })
+    } else {
+      const subjectMatch = mainContent.match(/Subject:\s*([^\n]+)/i)
+      const bodyMatch = mainContent.match(/Subject:[^\n]+\n([\s\S]*)/i)
+      const emailSubject = subjectMatch ? subjectMatch[1].trim() : 'Northumbrian Water Innovation Festival'
+      const emailBody = bodyMatch ? bodyMatch[1].trim() : mainContent.trim()
+      return NextResponse.json({ channel: 'email', emailSubject, emailBody, tip })
+    }
+
       return NextResponse.json({ channel: 'linkedin', message: liMatch[1].trim(), tip })
     } else {
       const subjectMatch = mainContent.match(/Subject:\s*([^\n]+)/)
