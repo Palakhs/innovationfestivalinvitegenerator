@@ -32,7 +32,7 @@ RULES:
 - Do not use the phrase "Northumbrian Water Innovation Festival" more than once
 - MOST IMPORTANT: Use the context field below to personalise the message. Reference specific details from it. A generic message that ignores context is a failure.
 - The warmth level must change both the opening line and overall tone significantly. Hot = direct and assumptive. Warm = friendly, references prior contact. Cold = careful, acknowledges gap.
-- Registration status must change the structure:  registered skip festival invite,  unsure include it.
+- Registration status must change the structure: if registered skip festival invite, if unsure include it.
 
 Contact:
 - Name: ${name}
@@ -67,7 +67,7 @@ TIP: [one sentence of practical advice for sending this specific message]`
 
     const data = await res.json()
 
-     (!res.ok) {
+    if (!res.ok) {
       const errMsg = data?.error?.message || `HTTP ${res.status}`
       return NextResponse.json({ error: `AI error: ${errMsg}` }, { status: 500 })
     }
@@ -81,9 +81,7 @@ TIP: [one sentence of practical advice for sending this specific message]`
     const tipMatch = text.match(/TIP:\s*([\s\S]*?)$/)
     const tip = tipMatch ? tipMatch[1].trim() : ''
     const mainContent = text.replace(/TIP:[\s\S]*$/, '').trim()
-const tipMatch = text.match(/TIP:\s*([\s\S]*?)$/)
-    const tip = tipMatch ? tipMatch[1].trim() : ''
-    const mainContent = text.replace(/TIP:[\s\S]*$/, '').trim()
+
     if (channel === 'linkedin') {
       const liMatch = mainContent.match(/LINKEDIN:\s*([\s\S]*?)$/)
       const message = liMatch ? liMatch[1].trim() : mainContent.trim()
@@ -96,18 +94,6 @@ const tipMatch = text.match(/TIP:\s*([\s\S]*?)$/)
       return NextResponse.json({ channel: 'email', emailSubject, emailBody, tip })
     }
 
-      return NextResponse.json({ channel: 'linkedin', message: liMatch[1].trim(), tip })
-    } else {
-      const subjectMatch = mainContent.match(/Subject:\s*([^\n]+)/)
-      const bodyMatch = mainContent.match(/Subject:[^\n]+\n([\s\S]*)/)
-      if (!subjectMatch) return NextResponse.json({ error: 'Failed to parse response. Please try again.' }, { status: 500 })
-      return NextResponse.json({
-        channel: 'email',
-        emailSubject: subjectMatch[1].trim(),
-        emailBody: bodyMatch ? bodyMatch[1].trim() : mainContent,
-        tip
-      })
-    }
   } catch (err) {
     return NextResponse.json({ error: `Request failed: ${err.message}` }, { status: 500 })
   }
